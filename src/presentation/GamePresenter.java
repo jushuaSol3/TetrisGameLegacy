@@ -5,8 +5,6 @@ import src.model.PlayerRecord;
 
 import java.util.Random;
 
-import javax.management.timer.Timer;
-
 public class GamePresenter {
 
     private GameBoard model;
@@ -124,17 +122,23 @@ public class GamePresenter {
     public void usePerk(int i) {
         if (i >= model.perks.size())
             return;
+        if (model.perkCooldown > 0)
+            return; // cooldown active, block usage
 
         String p = model.perks.remove(i);
+        model.perkCooldown = model.PERK_COOLDOWN_MAX; // start cooldown
 
         if (p.equals("Slow Time")) {
             model.slowTime = true;
             model.slowTimer = 300;
+            model.slowTimeSeconds = GameBoard.PERK_DURATION;
             timerCallback.setDelay(1000);
         }
 
-        if (p.equals("Bomb"))
+        if (p.equals("Bomb")) {
             model.bomb = true;
+            model.bombSeconds = GameBoard.PERK_DURATION;
+        }
 
         if (p.equals("Line Erase"))
             eraseLine();
@@ -142,13 +146,18 @@ public class GamePresenter {
         if (p.equals("Double Score")) {
             model.doubleScore = true;
             model.doubleTimer = 300;
+            model.doubleScoreSeconds = GameBoard.PERK_DURATION;
         }
 
-        if (p.equals("Shield"))
+        if (p.equals("Shield")) {
             model.shield = true;
+            model.shieldSeconds = GameBoard.PERK_DURATION;
+        }
 
-        if (p.equals("Lucky"))
+        if (p.equals("Lucky")) {
             model.lucky = true;
+            model.luckySeconds = GameBoard.PERK_DURATION;
+        }
     }
 
     private void givePerk() {
@@ -266,6 +275,9 @@ public class GamePresenter {
             model.bonusLifeGiven5000 = true;
         }
 
+        if (model.perkCooldown > 0)
+            model.perkCooldown--;
+
         if (model.slowTime) {
             model.slowTimer--;
             if (model.slowTimer <= 0) {
@@ -286,5 +298,45 @@ public class GamePresenter {
         while (canMove(currentPiece, curX, ghostY + 1))
             ghostY++;
         return ghostY;
+    }
+
+    // Called every 1 real second to count down active perk timers
+    public void tickSeconds() {
+        if (model.slowTime) {
+            model.slowTimeSeconds--;
+            if (model.slowTimeSeconds <= 0) {
+                model.slowTime = false;
+                model.slowTimeSeconds = 0;
+                timerCallback.setDelay(600);
+            }
+        }
+        if (model.doubleScore) {
+            model.doubleScoreSeconds--;
+            if (model.doubleScoreSeconds <= 0) {
+                model.doubleScore = false;
+                model.doubleScoreSeconds = 0;
+            }
+        }
+        if (model.shield) {
+            model.shieldSeconds--;
+            if (model.shieldSeconds <= 0) {
+                model.shield = false;
+                model.shieldSeconds = 0;
+            }
+        }
+        if (model.bomb) {
+            model.bombSeconds--;
+            if (model.bombSeconds <= 0) {
+                model.bomb = false;
+                model.bombSeconds = 0;
+            }
+        }
+        if (model.lucky) {
+            model.luckySeconds--;
+            if (model.luckySeconds <= 0) {
+                model.lucky = false;
+                model.luckySeconds = 0;
+            }
+        }
     }
 }

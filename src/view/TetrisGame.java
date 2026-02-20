@@ -13,6 +13,7 @@ public class TetrisGame extends JPanel implements ActionListener, GameView {
 
     private final int TILE_SIZE = 35;
     private Timer timer;
+    private Timer perkTimer; // 1-second real-time perk countdown
     private String playerName;
     private TetrisLegacy parent;
     private boolean isPaused = false;
@@ -69,8 +70,15 @@ public class TetrisGame extends JPanel implements ActionListener, GameView {
 
     public void startGame() {
         timer = new Timer(600, this);
+        perkTimer = new Timer(1000, e -> {
+            if (!isPaused) {
+                presenter.tickSeconds();
+                repaint();
+            }
+        });
         presenter.newPiece();
         timer.start();
+        perkTimer.start();
     }
 
     @Override
@@ -81,6 +89,7 @@ public class TetrisGame extends JPanel implements ActionListener, GameView {
     @Override
     public void onGameOver(String name, int score) {
         timer.stop();
+        perkTimer.stop();
         parent.gameOver(name, score);
     }
 
@@ -157,41 +166,53 @@ public class TetrisGame extends JPanel implements ActionListener, GameView {
         g2.setColor(Color.GREEN);
         g2.setFont(new Font("SansSerif", Font.BOLD, 13));
         g2.drawString("PERKS:", sx, 185);
-        g2.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        for (int i = 0; i < model.perks.size(); i++) {
-            g2.setColor(Color.YELLOW);
-            g2.drawString((i + 1) + " : " + model.perks.get(i), sx, 205 + i * 20);
-        }
-        if (model.perks.isEmpty()) {
-            g2.setColor(Color.DARK_GRAY);
-            g2.drawString("none", sx, 205);
+
+        if (model.perkCooldown > 0) {
+            g2.setColor(Color.RED);
+            g2.setFont(new Font("SansSerif", Font.BOLD, 12));
+            g2.drawString("COOLDOWN: " + model.perkCooldown, sx, 200);
+            g2.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            for (int i = 0; i < model.perks.size(); i++) {
+                g2.setColor(Color.DARK_GRAY); // grayed out during cooldown
+                g2.drawString((i + 1) + " : " + model.perks.get(i), sx, 218 + i * 20);
+            }
+        } else {
+            g2.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            for (int i = 0; i < model.perks.size(); i++) {
+                g2.setColor(Color.YELLOW);
+                g2.drawString((i + 1) + " : " + model.perks.get(i), sx, 205 + i * 20);
+            }
+            if (model.perks.isEmpty()) {
+                g2.setColor(Color.DARK_GRAY);
+                g2.drawString("none", sx, 205);
+            }
         }
 
-        // Active perk indicators
+        // Active perk indicators with countdown
         int indY = 275;
         if (model.slowTime) {
             g2.setColor(Color.CYAN);
-            g2.drawString("~ SLOW TIME ~", sx, indY);
+            g2.drawString("~ SLOW TIME ~   " + model.slowTimeSeconds + "s", sx, indY);
             indY += 18;
         }
         if (model.doubleScore) {
             g2.setColor(Color.MAGENTA);
-            g2.drawString("~ 2x SCORE ~", sx, indY);
+            g2.drawString("~ 2x SCORE ~    " + model.doubleScoreSeconds + "s", sx, indY);
             indY += 18;
         }
         if (model.shield) {
             g2.setColor(Color.GREEN);
-            g2.drawString("~ SHIELD ON ~", sx, indY);
+            g2.drawString("~ SHIELD ON ~   " + model.shieldSeconds + "s", sx, indY);
             indY += 18;
         }
         if (model.bomb) {
             g2.setColor(Color.RED);
-            g2.drawString("~ BOMB READY ~", sx, indY);
+            g2.drawString("~ BOMB READY ~ " + model.bombSeconds + "s", sx, indY);
             indY += 18;
         }
         if (model.lucky) {
             g2.setColor(Color.YELLOW);
-            g2.drawString("~ LUCKY ON ~", sx, indY);
+            g2.drawString("~ LUCKY ON ~    " + model.luckySeconds + "s", sx, indY);
             indY += 18;
         }
 

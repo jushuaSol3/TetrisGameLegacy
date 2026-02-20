@@ -29,6 +29,16 @@ public class GameBoard {
 
     public int slowTimer = 0;
     public int doubleTimer = 0;
+    public int perkCooldown = 0;
+    public final int PERK_COOLDOWN_MAX = 15;
+
+    // Real-time 30-second countdown timers (in seconds)
+    public static final int PERK_DURATION = 30;
+    public int slowTimeSeconds = 0;
+    public int doubleScoreSeconds = 0;
+    public int shieldSeconds = 0;
+    public int bombSeconds = 0;
+    public int luckySeconds = 0;
 
     public final int[][][] SHAPES = {
             { { 1, 1, 1, 1 } },
