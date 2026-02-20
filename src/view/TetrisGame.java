@@ -123,7 +123,7 @@ public class TetrisGame extends JPanel implements ActionListener, GameView {
         int curX = presenter.getCurX();
         int curY = presenter.getCurY();
 
-        // --- GHOST PIECE ---
+        // GHOST PIECE ---
         int ghostY = presenter.getGhostY();
         g2.setColor(new Color(255, 255, 255, 40));
         drawPiece(g2, currentPiece, curX, ghostY, null);
@@ -137,12 +137,12 @@ public class TetrisGame extends JPanel implements ActionListener, GameView {
             }
         }
 
-        // Draw Active Piece
+        // Drawing the Active Piece
         if (!isPaused) {
             drawPiece(g2, currentPiece, curX, curY, PIECE_COLORS[presenter.getCurrentPieceType()]);
         }
 
-        // --- SIDEBAR ---
+        // SIDEBAR
         int sx = GameBoard.BOARD_WIDTH * TILE_SIZE + 20;
         g2.setColor(new Color(30, 30, 40));
         g2.fillRoundRect(sx - 10, 20, 190, 150, 15, 15);
