@@ -66,6 +66,8 @@ public class TetrisGame extends JPanel implements ActionListener, GameView {
                 repaint();
             }
         });
+        setPreferredSize(new Dimension(GameBoard.BOARD_WIDTH * TILE_SIZE + 220, GameBoard.BOARD_HEIGHT * TILE_SIZE));
+
     }
 
     public void startGame() {

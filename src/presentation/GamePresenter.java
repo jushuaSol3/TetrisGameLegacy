@@ -18,7 +18,7 @@ public class GamePresenter {
     private GameView view;
     private String playerName;
 
-    private Timer timerRef; // reference to swing timer for delay changes
+    // private Timer timerRef; // reference to swing timer for delay changes
 
     public interface TimerCallback {
         void setDelay(int delay);

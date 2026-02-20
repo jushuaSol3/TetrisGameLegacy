@@ -1,17 +1,17 @@
 package src.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
 import src.model.GameBoard;
 import src.model.PlayerRecord;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.LinkedList;
 
 public class TetrisLegacy extends JFrame {
 
     public TetrisLegacy() {
+        setResizable(false);
         showMainMenu();
     }
 
@@ -50,12 +50,47 @@ public class TetrisLegacy extends JFrame {
     }
 
     private JButton createStyledButton(String text, Color bg) {
-        JButton btn = new JButton(text);
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Round Button and darkens slightly if hovered.
+                if (getModel().isPressed()) {
+                    g2.setColor(bg.darker());
+                } else if (getModel().isRollover()) {
+                    g2.setColor(bg.brighter());
+                } else {
+                    g2.setColor(bg);
+                }
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+                // text centered
+                g2.setColor(getForeground());
+                g2.setFont(getFont());
+                FontMetrics fm = g2.getFontMetrics();
+                int x = (getWidth() - fm.stringWidth(getText())) / 2;
+                int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+
+            @Override
+            protected void paintBorder(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(bg.darker());
+                g2.setStroke(new BasicStroke(2));
+                g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 30, 30);
+                g2.dispose();
+            }
+        };
         btn.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btn.setBackground(bg);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createRaisedBevelBorder());
+        btn.setContentAreaFilled(false); // prevent default Swing background
+        btn.setBorderPainted(false); // we draw our own border above
+        btn.setOpaque(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return btn;
     }
 
